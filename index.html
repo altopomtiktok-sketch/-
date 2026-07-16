@@ -195,16 +195,18 @@ th{color:var(--ink-soft); font-size:12px; font-family:'Cairo';}
     <div class="install-modal">
       <div class="icon-big">📲</div>
       <h2>ثبّت منصتك على موبايلك</h2>
-      <p>اضغط على زر المشاركة (Share) في المتصفح، ثم اختار "Add to Home Screen" أو "إضافة إلى الشاشة الرئيسية"</p>
-      <div class="btn-group">
+      <div id="installInstructions">
+        <!-- Content will be set by JS based on device -->
+      </div>
+      <div class="btn-group" style="margin-top:20px;">
         <button class="btn" onclick="closeInstallModal()">تمام</button>
         <button class="btn ghost" onclick="closeInstallModal()">بعدين</button>
       </div>
     </div>
   </div>
 
-  <!-- Download Button (fixed bottom-left) -->
-  <button class="download-btn" id="downloadBtn" onclick="installApp()" style="display:none;">
+  <!-- Download Button (fixed bottom-left) - Always show on mobile -->
+  <button class="download-btn" id="downloadBtn" onclick="showInstallModal()">
     <span class="icon">⬇️</span>
     <span class="text">
       <span>ثبّت التطبيق</span>
@@ -996,43 +998,67 @@ boot();
 /* ========== DOWNLOAD / INSTALL APP ========== */
 let deferredPrompt = null;
 
+// Listen for beforeinstallprompt (Android/Chrome)
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  showDownloadButton();
+  console.log('beforeinstallprompt fired');
 });
 
-function showDownloadButton() {
-  // Only show if not already installed
-  if(window.matchMedia('(display-mode: standalone)').matches) return;
-
-  const btn = document.getElementById('downloadBtn');
-  if(btn) btn.style.display = 'flex';
-}
-
-function hideDownloadButton() {
-  const btn = document.getElementById('downloadBtn');
-  if(btn) btn.style.display = 'none';
-}
-
-async function installApp() {
-  if(deferredPrompt) {
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if(outcome === 'accepted') {
-      console.log('User installed app');
-      hideDownloadButton();
-    }
-    deferredPrompt = null;
-  } else {
-    // Show manual install instructions
-    showInstallModal();
-  }
+// Detect device type
+function getDeviceType() {
+  const ua = navigator.userAgent;
+  if (/iPad|iPhone|iPod/.test(ua)) return 'ios';
+  if (/Android/.test(ua)) return 'android';
+  return 'desktop';
 }
 
 function showInstallModal() {
   const modal = document.getElementById('installModal');
-  if(modal) modal.classList.add('show');
+  const instructions = document.getElementById('installInstructions');
+  if(!modal || !instructions) return;
+
+  const device = getDeviceType();
+
+  if (device === 'ios') {
+    instructions.innerHTML = `
+      <p style="text-align:right; line-height:1.8;">
+        <strong>📱 على iPhone/iPad:</strong><br>
+        1. اضغط على زر <strong>المشاركة</strong> (Share) في الأسفل<br>
+        2. اسحب للأسفل واختار <strong>"Add to Home Screen"</strong><br>
+        3. اضغط <strong>"Add"</strong> في الأعلى<br>
+        4. التطبيق هيظهر على الشاشة الرئيسية! 🎉
+      </p>
+      <div style="background:var(--surface-2); padding:12px; border-radius:10px; margin-top:10px; text-align:center;">
+        <span style="font-size:30px;">📤 ➜ 🏠 ➜ ✅</span>
+      </div>
+    `;
+  } else if (device === 'android') {
+    instructions.innerHTML = `
+      <p style="text-align:right; line-height:1.8;">
+        <strong>📱 على Android:</strong><br>
+        1. اضغط على النقاط الثلاثة <strong>⋮</strong> في الأعلى<br>
+        2. اختار <strong>"Add to Home Screen"</strong> أو <strong>"تثبيت التطبيق"</strong><br>
+        3. اضغط <strong>"Install"</strong> أو <strong>"إضافة"</strong><br>
+        4. التطبيق هيتحمل! 🎉
+      </p>
+      <div style="background:var(--surface-2); padding:12px; border-radius:10px; margin-top:10px; text-align:center;">
+        <span style="font-size:30px;">⋮ ➜ 🏠 ➜ ✅</span>
+      </div>
+    `;
+  } else {
+    instructions.innerHTML = `
+      <p style="text-align:right; line-height:1.8;">
+        <strong>💻 على الكمبيوتر:</strong><br>
+        1. افتح المتصفح (Chrome أو Edge)<br>
+        2. اضغط على النقاط الثلاثة <strong>⋮</strong><br>
+        3. اختار <strong>"Cast, save and share"</strong> ➜ <strong>"Install page as app"</strong><br>
+        4. التطبيق هيتحمل! 🎉
+      </p>
+    `;
+  }
+
+  modal.classList.add('show');
 }
 
 function closeInstallModal() {
@@ -1040,20 +1066,10 @@ function closeInstallModal() {
   if(modal) modal.classList.remove('show');
 }
 
-// Check if already installed
+// Hide download button if already installed
 if(window.matchMedia('(display-mode: standalone)').matches) {
-  hideDownloadButton();
-}
-
-// Also hide on iOS (they use "Add to Home Screen" manually)
-const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-if(isIOS) {
-  // Show iOS-specific instructions
   const btn = document.getElementById('downloadBtn');
-  if(btn) {
-    btn.onclick = showInstallModal;
-    btn.querySelector('small').textContent = 'اضغط للتعليمات';
-  }
+  if(btn) btn.style.display = 'none';
 }
 
 </script>
