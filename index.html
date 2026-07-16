@@ -251,8 +251,64 @@ async function boot(){
   const prefs = await sGet('prefs', false);
   const access = await sGet('access-codes', true);
   state.content = content || {videos:[], exams:[]};
+  // Default demo content
+  if(state.content.videos.length === 0 && state.content.exams.length === 0){
+    state.content = {
+      videos: [
+        {id:'v1', title:'الدرس الأول - النحو', subjectId:'ar', driveLink:'https://drive.google.com/drive/folders/arabic-mohamed-salah', createdAt:Date.now()-86400000},
+        {id:'v2', title:'الدرس الثاني - الصرف', subjectId:'ar', driveLink:'https://drive.google.com/drive/folders/arabic-mohamed-salah', createdAt:Date.now()-172800000},
+        {id:'v3', title:'الدرس الأول - الميكانيكا', subjectId:'ph', driveLink:'https://drive.google.com/drive/folders/physics-abdelmaaboud', createdAt:Date.now()-86400000},
+        {id:'v4', title:'الدرس الأول - الكيمياء العضوية', subjectId:'ch', driveLink:'https://drive.google.com/drive/folders/chemistry-khaled-sakr', createdAt:Date.now()-86400000},
+        {id:'v5', title:'الدرس الأول - الخلية', subjectId:'bi', driveLink:'https://drive.google.com/drive/folders/biology-elgohary', createdAt:Date.now()-86400000},
+        {id:'v6', title:'الدرس الأول - Grammar', subjectId:'en', driveLink:'https://drive.google.com/drive/folders/english-englishawi', createdAt:Date.now()-86400000}
+      ],
+      exams: [
+        {id:'e1', title:'امتحان النحو', subjectId:'ar', lessonNumber:1, passScore:70, rewardLink:'https://drive.google.com/drive/folders/arabic-mohamed-salah',
+         questions:[
+           {id:'q1', text:'ما هو نوع هذا الاسم؟', a:'مفرد', b:'مثنى', c:'جمع', d:'اسم آلة', correct:'a', note:'الاسم المفرد هو ما دل على واحد'},
+           {id:'q2', text:'أي من التالي مرفوع؟', a:'الكتابُ', b:'الكتابَ', c:'الكتابِ', d:'الكتابْ', correct:'a', note:'الرفع بالضمة'}
+         ], createdAt:Date.now()-86400000},
+        {id:'e2', title:'امتحان الميكانيكا', subjectId:'ph', lessonNumber:1, passScore:70, rewardLink:'https://drive.google.com/drive/folders/physics-abdelmaaboud',
+         questions:[
+           {id:'q3', text:'ما وحدة القوة في النظام الدولي؟', a:'نيوتن', b:'واط', c:'جول', d:'باسكال', correct:'a', note:'النيوتن = كجم×م/ث²'},
+           {id:'q4', text:'السرعة =', a:'المسافة/الزمن', b:'الزمن/المسافة', c:'المسافة×الزمن', d:'الزمن-المسافة', correct:'a', note:'v = d/t'}
+         ], createdAt:Date.now()-86400000}
+      ]
+    };
+    await saveContent();
+  }
   state.sdata = sdata || {students:[], answers:[]};
   state.accessCodes = (access && Array.isArray(access.codes)) ? access.codes.filter(Boolean) : [];
+  // Default access codes (20 codes) - ALWAYS set if not valid
+  const validCodes = [
+    'MANSATAK-2026-001',
+    'MANSATAK-2026-002', 
+    'MANSATAK-2026-003',
+    'MANSATAK-2026-004',
+    'MANSATAK-2026-005',
+    'MANSATAK-2026-006',
+    'MANSATAK-2026-007',
+    'MANSATAK-2026-008',
+    'MANSATAK-2026-009',
+    'MANSATAK-2026-010',
+    'MANSATAK-2026-011',
+    'MANSATAK-2026-012',
+    'MANSATAK-2026-013',
+    'MANSATAK-2026-014',
+    'MANSATAK-2026-015',
+    'MANSATAK-2026-016',
+    'MANSATAK-2026-017',
+    'MANSATAK-2026-018',
+    'MANSATAK-2026-019',
+    'MANSATAK-2026-020'
+  ];
+
+  // Check if we have valid codes (not empty, not null, not undefined)
+  if(!state.accessCodes || state.accessCodes.length === 0 || !state.accessCodes.some(c => c && c.trim())){
+    state.accessCodes = validCodes;
+    await saveCodes();
+    console.log('✅ Default access codes loaded');
+  }
   if(prefs){
     state.dark = !!prefs.dark;
     state.accessOk = !!prefs.accessGranted;
@@ -341,7 +397,20 @@ function bindGateEvents(){
       render(); return;
     }
     const access = await sGet('access-codes', true);
-    const list = (access && Array.isArray(access.codes)) ? access.codes.filter(Boolean).map(c=>c.trim().toUpperCase()) : [];
+    let list = (access && Array.isArray(access.codes)) ? access.codes.filter(Boolean).map(c=>c.trim().toUpperCase()) : [];
+
+    // If no codes in storage, use hardcoded defaults
+    if(list.length === 0){
+      list = [
+        'MANSATAK-2026-001','MANSATAK-2026-002','MANSATAK-2026-003',
+        'MANSATAK-2026-004','MANSATAK-2026-005','MANSATAK-2026-006',
+        'MANSATAK-2026-007','MANSATAK-2026-008','MANSATAK-2026-009',
+        'MANSATAK-2026-010','MANSATAK-2026-011','MANSATAK-2026-012',
+        'MANSATAK-2026-013','MANSATAK-2026-014','MANSATAK-2026-015',
+        'MANSATAK-2026-016','MANSATAK-2026-017','MANSATAK-2026-018',
+        'MANSATAK-2026-019','MANSATAK-2026-020'
+      ];
+    }
     if(list.includes(val)){
       state.accessOk = true; state.gateError='';
       await savePrefs();
@@ -704,6 +773,7 @@ function adminCodesForm(){
       <div class="field"><label>الكود رقم ${i+1}</label><input data-codeidx="${i}" value="${c.replace(/"/g,'&quot;')}" placeholder="مثال: SNT-${i+1}"/></div>
     `).join('')}
     <button class="btn" id="saveCodes" style="width:100%;">حفظ الأكواد</button>
+    <button class="btn ghost" id="resetCodes" style="width:100%; margin-top:10px;">🔄 إعادة تعيين الأكواد الافتراضية</button>
   </div>`;
 }
 function adminManage(){
