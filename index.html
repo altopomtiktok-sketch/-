@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>منصتك — منصة الثانوية العامة</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800;900&family=Tajawal:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+:root{
+  --bg:#F7F2E9;
+  --surface:#FFFFFF;
+  --surface-2:#EFE8D8;
+  --ink:#1C2624;
+  --ink-soft:#5B6462;
+  --line:#DCD3BE;
+  --brand:#14555A;
+  --brand-2:#0D3D41;
+  --paper-shadow: 0 1px 0 rgba(28,38,36,.04), 0 8px 24px rgba(28,38,36,.06);
+  --ar:#2F9E58; --ph:#C98A16; --ch:#D64545; --bi:#8B5FBF; --en:#2E7FD9;
+  --ok:#2F9E58; --bad:#D64545;
+  --radius: 14px;
+}
+body.dark{
+  --bg:#0E1A1B;
+  --surface:#152526;
+  --surface-2:#1C2E2F;
+  --ink:#EAF1EE;
+  --ink-soft:#9FB0AC;
+  --line:#26403F;
+  --brand:#3FBFB0;
+  --brand-2:#2E948A;
+  --paper-shadow: 0 1px 0 rgba(0,0,0,.2), 0 10px 30px rgba(0,0,0,.35);
+  --ar:#4CC17E; --ph:#E0A93A; --ch:#E86A6A; --bi:#A984DB; --en:#5B9FE8;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:'Tajawal',sans-serif;
+  transition:background .25s ease, color .25s ease;
+  min-height:100vh;
+}
+h1,h2,h3,.display{font-family:'Cairo',sans-serif}
+.mono{font-family:'IBM Plex Mono',monospace}
+a{color:inherit}
+button{font-family:inherit; cursor:pointer;}
+::selection{background:var(--brand); color:#fff;}
+
+.topbar{
+  position:sticky; top:0; z-index:30;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 22px; background:var(--surface);
+  border-bottom:1px solid var(--line);
+}
+.logo{display:flex; align-items:center; gap:10px; font-family:'Cairo'; font-weight:900; font-size:20px;}
+.logo .dot{width:10px;height:10px;border-radius:3px;background:var(--brand); transform:rotate(45deg); display:inline-block;}
+.nav{display:flex; gap:4px; flex-wrap:wrap;}
+.nav button{
+  background:transparent; border:none; color:var(--ink-soft); font-weight:700;
+  padding:9px 14px; border-radius:9px; font-size:14px;
+}
+.nav button.active, .nav button:hover{background:var(--surface-2); color:var(--ink);}
+.top-actions{display:flex; align-items:center; gap:8px;}
+.icon-btn{
+  width:38px; height:38px; border-radius:10px; border:1px solid var(--line);
+  background:var(--surface); display:flex; align-items:center; justify-content:center; font-size:17px;
+}
+.icon-btn:hover{background:var(--surface-2);}
+
+.wrap{max-width:1080px; margin:0 auto; padding:28px 20px 80px;}
+.eyebrow{font-family:'Cairo'; font-weight:800; letter-spacing:.06em; font-size:12px; color:var(--brand); text-transform:uppercase;}
+.h-title{font-size:30px; font-weight:900; margin:6px 0 22px;}
+
+/* subject / teacher card - "student ID card" signature */
+.grid-cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:16px;}
+.id-card{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--paper-shadow); overflow:hidden; text-align:right; position:relative;
+  border-inline-end:6px solid var(--c);
+  padding:18px 18px 16px; display:flex; flex-direction:column; gap:8px;
+  transition:transform .15s ease;
+}
+.id-card:hover{transform:translateY(-3px);}
+.id-card .icon{font-size:30px;}
+.id-card .teacher{font-size:12px; color:var(--ink-soft); font-weight:700;}
+.id-card .subject{font-family:'Cairo'; font-weight:900; font-size:19px;}
+.id-card .meta{font-size:12px; color:var(--ink-soft); margin-top:6px; display:flex; justify-content:space-between; align-items:center;}
+.dots{display:flex; gap:5px; flex-direction:row-reverse;}
+.dots span{width:8px;height:8px;border-radius:2px; background:var(--line);}
+.dots span.done{background:var(--c);}
+.dots span.cur{background:var(--c); opacity:.45;}
+
+.card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--paper-shadow); padding:20px;}
+.tabs{display:flex; gap:6px; margin-bottom:18px; border-bottom:1px solid var(--line);}
+.tabs button{background:none; border:none; padding:10px 4px; margin-inline-end:18px; font-weight:800; color:var(--ink-soft); border-bottom:2px solid transparent; font-family:'Cairo';}
+.tabs button.active{color:var(--brand); border-bottom-color:var(--brand);}
+
+.list-row{display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border:1px dashed var(--line); border-radius:10px; margin-bottom:10px; background:var(--surface);}
+.list-row .title{font-weight:700;}
+.list-row .sub{font-size:12px; color:var(--ink-soft);}
+.pill{font-size:12px; padding:4px 10px; border-radius:20px; font-weight:700;}
+.pill.open{background:rgba(47,158,88,.14); color:var(--ok);}
+.pill.locked{background:rgba(214,69,69,.12); color:var(--bad);}
+.btn{
+  background:var(--brand); color:#fff; border:none; padding:10px 18px; border-radius:9px;
+  font-weight:800; font-size:14px; font-family:'Cairo';
+}
+.btn:hover{background:var(--brand-2);}
+.btn.ghost{background:transparent; color:var(--brand); border:1px solid var(--brand);}
+.btn.danger{background:var(--bad);}
+.btn:disabled{opacity:.4; cursor:not-allowed;}
+.btn.sm{padding:6px 12px; font-size:12px;}
+
+input,select,textarea{
+  width:100%; padding:10px 12px; border-radius:9px; border:1px solid var(--line);
+  background:var(--surface); color:var(--ink); font-family:'Tajawal'; font-size:14px;
+}
+label{font-size:12px; font-weight:700; color:var(--ink-soft); display:block; margin-bottom:5px;}
+.field{margin-bottom:14px;}
+.row2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+
+.q-block{border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:14px; background:var(--surface-2);}
+.q-num{font-family:'Cairo'; font-weight:900; color:var(--brand); font-size:13px; margin-bottom:8px;}
+.choice{display:flex; align-items:center; gap:8px; padding:10px 12px; border:1px solid var(--line); border-radius:9px; margin-bottom:8px; background:var(--surface); cursor:pointer;}
+.choice:hover{border-color:var(--brand);}
+.choice.picked{border-color:var(--brand); background:rgba(20,85,90,.08);}
+.choice input{width:auto;}
+
+.result-badge{display:inline-flex; align-items:center; gap:8px; padding:8px 16px; border-radius:30px; font-weight:900; font-family:'Cairo'; font-size:15px;}
+.result-badge.pass{background:rgba(47,158,88,.14); color:var(--ok);}
+.result-badge.fail{background:rgba(214,69,69,.12); color:var(--bad);}
+table{width:100%; border-collapse:collapse; margin-top:14px;}
+th,td{padding:10px; text-align:center; border-bottom:1px solid var(--line); font-size:13px;}
+th{color:var(--ink-soft); font-size:12px; font-family:'Cairo';}
+.note{font-size:12px; color:var(--ink-soft); background:var(--surface-2); padding:8px 10px; border-radius:8px; margin-top:6px;}
+
+.stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
+.bar-row{display:flex; align-items:center; gap:10px; margin-bottom:12px;}
+.bar-label{width:110px; font-size:13px; font-weight:700; flex-shrink:0;}
+.bar-track{flex:1; height:16px; background:var(--surface-2); border-radius:8px; overflow:hidden;}
+.bar-fill{height:100%; border-radius:8px;}
+.bar-val{width:44px; font-size:12px; font-family:'IBM Plex Mono'; text-align:left;}
+
+.modal-bg{position:fixed; inset:0; background:rgba(10,15,15,.55); display:flex; align-items:center; justify-content:center; z-index:100; padding:20px;}
+.modal{background:var(--surface); border-radius:16px; padding:26px; width:100%; max-width:400px; box-shadow:var(--paper-shadow);}
+
+.empty{text-align:center; padding:40px 20px; color:var(--ink-soft);}
+.empty .big{font-size:34px; margin-bottom:8px;}
+.hint{font-size:12px; color:var(--ink-soft); margin-top:4px;}
+.reward-link{display:block; text-align:center; padding:12px; border-radius:10px; font-weight:800; margin-top:14px;}
+.reward-link.on{background:rgba(47,158,88,.14); color:var(--ok);}
+.reward-link.off{background:var(--surface-2); color:var(--ink-soft);}
+.wa-btn{background:#25D366; color:#fff;}
+.wa-btn:hover{background:#1ebd5a;}
+.back-link{font-size:13px; font-weight:700; color:var(--brand); background:none; border:none; margin-bottom:16px; display:inline-flex; align-items:center; gap:4px;}
+.section-title{font-family:'Cairo'; font-weight:900; font-size:16px; margin:0 0 12px;}
+.divider{height:1px; background:var(--line); margin:22px 0; border:none;}
+.rank-1{color:var(--bad); font-weight:900;}
+</style>
+
+  <!-- Download Button Styles -->
+  <style>
+    .download-btn{
+      position:fixed; bottom:20px; left:20px; z-index:200;
+      background:linear-gradient(135deg,#14555A,#0D3D41); color:#fff;
+      padding:12px 20px; border-radius:12px; font-family:'Cairo',sans-serif;
+      font-weight:800; font-size:14px; border:none; cursor:pointer;
+      box-shadow:0 4px 15px rgba(20,85,90,.35); display:flex;
+      align-items:center; gap:8px; transition:all .2s;
+    }
+    .download-btn:hover{transform:translateY(-2px); box-shadow:0 6px 20px rgba(20,85,90,.45);}
+    .download-btn:active{transform:scale(.95);}
+    .download-btn .icon{font-size:18px;}
+    .download-btn .text{display:flex; flex-direction:column; align-items:flex-start;}
+    .download-btn .text small{font-size:11px; font-weight:500; opacity:.8;}
+
+    /* Install prompt modal */
+    .install-modal-bg{position:fixed; inset:0; background:rgba(10,15,15,.7); z-index:300;
+      display:none; align-items:center; justify-content:center; padding:20px;}
+    .install-modal-bg.show{display:flex;}
+    .install-modal{background:var(--surface); border-radius:16px; padding:28px; max-width:380px;
+      width:100%; text-align:center; box-shadow:var(--paper-shadow);}
+    .install-modal .icon-big{font-size:48px; margin-bottom:12px;}
+    .install-modal h2{font-family:'Cairo'; font-weight:900; margin-bottom:8px;}
+    .install-modal p{color:var(--ink-soft); margin-bottom:20px; font-size:14px;}
+    .install-modal .btn-group{display:flex; gap:10px;}
+    .install-modal .btn-group button{flex:1;}
+
+  </style>
+</head>
+<body>
+  <!-- Install Modal -->
+  <div class="install-modal-bg" id="installModal">
+    <div class="install-modal">
+      <div class="icon-big">📲</div>
+      <h2>ثبّت منصتك على موبايلك</h2>
+      <p>اضغط على زر المشاركة (Share) في المتصفح، ثم اختار "Add to Home Screen" أو "إضافة إلى الشاشة الرئيسية"</p>
+      <div class="btn-group">
+        <button class="btn" onclick="closeInstallModal()">تمام</button>
+        <button class="btn ghost" onclick="closeInstallModal()">بعدين</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Download Button (fixed bottom-left) -->
+  <button class="download-btn" id="downloadBtn" onclick="installApp()" style="display:none;">
+    <span class="icon">⬇️</span>
+    <span class="text">
+      <span>ثبّت التطبيق</span>
+      <small>اضغط هنا للتنزيل</small>
+    </span>
+  </button>
+
+<div id="app"></div>
+
+<script>
+const SUBJECTS = [
+  {id:'ar', teacher:'محمد صلاح', name:'اللغة العربية', c:'var(--ar)', icon:'📗'},
+  {id:'ph', teacher:'عبد المعبود', name:'الفيزياء', c:'var(--ph)', icon:'📙'},
+  {id:'ch', teacher:'خالد صقر', name:'الكيمياء', c:'var(--ch)', icon:'📕'},
+  {id:'bi', teacher:'الجوهري', name:'الأحياء', c:'var(--bi)', icon:'📔'},
+  {id:'en', teacher:'انجلشاوي', name:'اللغة الإنجليزية', c:'var(--en)', icon:'📘'},
+];
+const ADMIN_PIN = '0122HAmada';
+const N_CODES = 15;
+
+let state = {
+  view:'home', subjectId:null, examId:null, tab:'videos',
+  content:{videos:[], exams:[]}, sdata:{students:[], answers:[]},
+  student:null, dark:false, adminOk:false, adminSubTab:'video',
+  draftQuestions:[newQ()], examAnswers:{}, lastResult:null,
+  loading:true, identifyPurpose:null, parentResult:null,
+  accessOk:false, accessCodes:[], gateError:'',
+};
+
+function newQ(){ return {text:'', a:'', b:'', c:'', d:'', correct:'a', note:''}; }
+function uid(){ return Math.random().toString(36).slice(2,10) + Date.now().toString(36); }
+
+async function sGet(key, shared){
+  try{ const r = await window.storage.get(key, shared); return r ? JSON.parse(r.value) : null; }
+  catch(e){ return null; }
+}
+async function sSet(key, value, shared){
+  try{ await window.storage.set(key, JSON.stringify(value), shared); }catch(e){ console.error('storage set failed', e); }
+}
+
+async function boot(){
+  const content = await sGet('content', true);
+  const sdata = await sGet('students-data', true);
+  const prefs = await sGet('prefs', false);
+  const access = await sGet('access-codes', true);
+  state.content = content || {videos:[], exams:[]};
+  state.sdata = sdata || {students:[], answers:[]};
+  state.accessCodes = (access && Array.isArray(access.codes)) ? access.codes.filter(Boolean) : [];
+  if(prefs){
+    state.dark = !!prefs.dark;
+    state.accessOk = !!prefs.accessGranted;
+    state.adminOk = !!prefs.adminGranted;
+    if(prefs.studentId){
+      const found = state.sdata.students.find(s=>s.id===prefs.studentId);
+      if(found) state.student = found;
+    }
+  }
+  document.body.classList.toggle('dark', state.dark);
+  state.loading = false;
+  render();
+}
+
+async function saveContent(){ await sSet('content', state.content, true); }
+async function saveSdata(){ await sSet('students-data', state.sdata, true); }
+async function savePrefs(){ await sSet('prefs', {dark:state.dark, studentId: state.student?state.student.id:null, accessGranted: state.accessOk, adminGranted: state.adminOk}, false); }
+async function saveCodes(){ await sSet('access-codes', {codes: state.accessCodes.filter(Boolean)}, true); }
+
+function go(view, extra){ state.view = view; Object.assign(state, extra||{}); render(); window.scrollTo(0,0); }
+
+function subjectExams(subjectId){
+  return state.content.exams.filter(e=>e.subjectId===subjectId).sort((a,b)=> (a.lessonNumber||0)-(b.lessonNumber||0) || a.createdAt-b.createdAt);
+}
+function subjectVideos(subjectId){
+  return state.content.videos.filter(v=>v.subjectId===subjectId).sort((a,b)=>a.createdAt-b.createdAt);
+}
+function hasPassed(studentId, examId){
+  return state.sdata.answers.some(a=>a.studentId===studentId && a.examId===examId && a.passed);
+}
+function examLocked(exam, idx, list){
+  if(idx===0) return false;
+  const prev = list[idx-1];
+  if(!state.student) return true;
+  return !hasPassed(state.student.id, prev.id);
+}
+function studentAttemptsFor(studentId, examId){
+  return state.sdata.answers.filter(a=>a.studentId===studentId && a.examId===examId);
+}
+function bestAttempt(studentId, examId){
+  const atts = studentAttemptsFor(studentId, examId);
+  if(!atts.length) return null;
+  return atts.reduce((best,a)=> (a.percent>best.percent? a: best), atts[0]);
+}
+
+/* ---------- RENDER ---------- */
+function render(){
+  const app = document.getElementById('app');
+  if(state.loading){ app.innerHTML = `<div class="wrap"><p>...جارِ التحميل</p></div>`; return; }
+  if(!state.accessOk){ app.innerHTML = gateTopbar() + gateView(); bindGateEvents(); return; }
+  app.innerHTML = topbarHtml() + viewHtml() + modalHtml();
+  bindEvents();
+}
+
+function gateTopbar(){
+  return `<div class="topbar">
+    <div class="logo"><span class="dot"></span> منصتك</div>
+    <button class="icon-btn" id="darkToggleGate" title="الوضع الليلي">${state.dark?'☀️':'🌙'}</button>
+  </div>`;
+}
+
+function gateView(){
+  return `<div class="wrap" style="max-width:420px;">
+    <div class="eyebrow">اشتراك مدفوع</div>
+    <h1 class="h-title">أدخل كود الاشتراك للدخول</h1>
+    <div class="card">
+      <div class="field"><label>كود الاشتراك</label><input id="gateCode" placeholder="اكتب الكود اللي معاك" style="text-align:center; letter-spacing:2px; font-weight:700;"/></div>
+      ${state.gateError? `<div class="note" style="color:var(--bad); background:rgba(214,69,69,.1);">${state.gateError}</div>`:''}
+      <button class="btn" id="gateSubmit" style="width:100%; margin-top:8px;">دخول</button>
+      <div class="hint" style="margin-top:12px;">الكود بتاخده بعد الاشتراك في المنصة. لو معندكش كود، تواصل مع إدارة المنصة.</div>
+    </div>
+  </div>`;
+}
+
+function bindGateEvents(){
+  document.getElementById('darkToggleGate').onclick = ()=>{ state.dark=!state.dark; document.body.classList.toggle('dark',state.dark); savePrefs(); render(); };
+  const submit = document.getElementById('gateSubmit');
+  const input = document.getElementById('gateCode');
+  const tryEnter = async ()=>{
+    const raw = input.value.trim();
+    const val = raw.toUpperCase();
+    if(!val){ state.gateError='من فضلك اكتب الكود.'; render(); return; }
+    if(raw === ADMIN_PIN){
+      state.accessOk = true; state.adminOk = true; state.gateError='';
+      await savePrefs();
+      render(); return;
+    }
+    const access = await sGet('access-codes', true);
+    const list = (access && Array.isArray(access.codes)) ? access.codes.filter(Boolean).map(c=>c.trim().toUpperCase()) : [];
+    if(list.includes(val)){
+      state.accessOk = true; state.gateError='';
+      await savePrefs();
+      render();
+    } else {
+      state.gateError='الكود غير صحيح، تأكد منه أو تواصل مع الأدمن.';
+      render();
+    }
+  };
+  submit.onclick = tryEnter;
+  input.onkeydown = (e)=>{ if(e.key==='Enter') tryEnter(); };
+}
+
+function topbarHtml(){
+  const items = [
+    ['home','الرئيسية'], ['stats','إحصائياتي'], ['compare','مقارنة المدرسين'],
+    ['parent','تابع ابنك'], ['admin','لوحة التحكم'],
+  ];
+  return `
+  <div class="topbar">
+    <div class="logo"><span class="dot"></span> منصتك</div>
+    <div class="nav">
+      ${items.map(([v,l])=>`<button data-nav="${v}" class="${state.view===v?'active':''}">${l}</button>`).join('')}
+    </div>
+    <div class="top-actions">
+      ${state.student?`<span class="hint" style="margin-inline-end:6px;">أهلاً، ${state.student.name}</span>`:''}
+      
+      <button class="icon-btn" id="darkToggle" title="الوضع الليلي">${state.dark?'☀️':'🌙'}</button>
+    </div>
+  </div>`;
+}
+
+function viewHtml(){
+  switch(state.view){
+    case 'home': return homeView();
+    case 'subject': return subjectView();
+    case 'exam': return examView();
+    case 'result': return resultView();
+    case 'stats': return statsView();
+    case 'compare': return compareView();
+    case 'parent': return parentView();
+    case 'admin': return adminView();
+    default: return homeView();
+  }
+}
+
+function homeView(){
+  return `<div class="wrap">
+    <div class="eyebrow">الصف الثالث الثانوي</div>
+    <h1 class="h-title">اختر مدرّسك وابدأ المذاكرة</h1>
+    <div class="grid-cards">
+      ${SUBJECTS.map(s=>{
+        const exams = subjectExams(s.id);
+        const dotsHtml = exams.slice(0,6).map((e,i)=>{
+          const passed = state.student && hasPassed(state.student.id, e.id);
+          const locked = examLocked(e,i,exams);
+          return `<span class="${passed?'done':(!locked?'cur':'')}"></span>`;
+        }).join('');
+        return `<div class="id-card" style="--c:${s.c}" data-open-subject="${s.id}">
+          <div class="icon">${s.icon}</div>
+          <div class="teacher">المدرس ${s.teacher}</div>
+          <div class="subject">${s.name}</div>
+          <div class="meta">
+            <span>${exams.length} امتحان</span>
+            <div class="dots">${dotsHtml || '<span></span>'}</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+function subjectView(){
+  const s = SUBJECTS.find(x=>x.id===state.subjectId);
+  const videos = subjectVideos(s.id);
+  const exams = subjectExams(s.id);
+  return `<div class="wrap">
+    <button class="back-link" data-nav="home">→ رجوع للرئيسية</button>
+    <div class="eyebrow" style="color:${s.c}">المدرس ${s.teacher}</div>
+    <h1 class="h-title">${s.icon} ${s.name}</h1>
+    <div class="tabs">
+      <button data-tab="videos" class="${state.tab==='videos'?'active':''}">الفيديوهات (الشرح)</button>
+      <button data-tab="exams" class="${state.tab==='exams'?'active':''}">الامتحانات</button>
+    </div>
+    ${state.tab==='videos'?videosTab(videos,s):examsTab(exams,s)}
+  </div>`;
+}
+function videosTab(videos,s){
+  if(!videos.length) return `<div class="empty"><div class="big">🎬</div>لا توجد فيديوهات مضافة بعد لهذه المادة.</div>`;
+  return videos.map(v=>`
+    <div class="list-row">
+      <div><div class="title">${v.title}</div><div class="sub">فيديو شرح</div></div>
+      <a href="${v.driveLink}" target="_blank" rel="noopener"><button class="btn ghost sm">مشاهدة</button></a>
+    </div>`).join('');
+}
+function examsTab(exams,s){
+  if(!exams.length) return `<div class="empty"><div class="big">📝</div>لا توجد امتحانات مضافة بعد لهذه المادة.</div>`;
+  return exams.map((e,i)=>{
+    const locked = examLocked(e,i,exams);
+    const passed = state.student && hasPassed(state.student.id,e.id);
+    return `<div class="list-row">
+      <div><div class="title">${e.title}</div><div class="sub">النجاح: ${e.passScore}% ${passed?' · تم النجاح ✅':''}</div></div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="pill ${locked?'locked':'open'}">${locked?'🔒 مقفول':'🔓 مفتوح'}</span>
+        <button class="btn sm" ${locked?'disabled':''} data-start-exam="${e.id}">${passed?'إعادة المحاولة':'بدء الامتحان'}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function examView(){
+  const exam = state.content.exams.find(e=>e.id===state.examId);
+  const s = SUBJECTS.find(x=>x.id===exam.subjectId);
+  return `<div class="wrap">
+    <div class="eyebrow" style="color:${s.c}">${s.name} — ${s.teacher}</div>
+    <h1 class="h-title">${exam.title}</h1>
+    <div class="card">
+      ${exam.questions.map((q,i)=>`
+        <div class="q-block">
+          <div class="q-num">السؤال ${i+1} من ${exam.questions.length}</div>
+          <div style="font-weight:700; margin-bottom:10px;">${q.text}</div>
+          ${['a','b','c','d'].map(k=>`
+            <div class="choice ${state.examAnswers[q.id]===k?'picked':''}" data-pick="${q.id}|${k}">
+              <input type="radio" name="q_${q.id}" ${state.examAnswers[q.id]===k?'checked':''}/>
+              <span>${q[k]}</span>
+            </div>`).join('')}
+        </div>`).join('')}
+      <button class="btn" id="submitExam">إنهاء وتصحيح</button>
+    </div>
+  </div>`;
+}
+
+function resultView(){
+  const r = state.lastResult;
+  const exam = state.content.exams.find(e=>e.id===r.examId);
+  const s = SUBJECTS.find(x=>x.id===exam.subjectId);
+  return `<div class="wrap">
+    <button class="back-link" data-nav="subject" data-back-subject="${s.id}">→ رجوع للمادة</button>
+    <h1 class="h-title">نتيجة: ${exam.title}</h1>
+    <div class="card">
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <div class="mono" style="font-size:26px; font-weight:700;">${r.score} / ${r.total}</div>
+        <span class="result-badge ${r.passed?'pass':'fail'}">${r.passed?'✅ ناجح':'❌ راسب'}</span>
+      </div>
+      <table>
+        <tr><th>رقم السؤال</th><th>إجابتك</th><th>الإجابة الصحيحة</th><th></th></tr>
+        ${r.rows.map((row,i)=>`
+          <tr>
+            <td>${i+1}</td><td>${row.selected?row.selected.toUpperCase():'—'}</td><td>${row.correct.toUpperCase()}</td>
+            <td>${row.isCorrect?'✅':'❌'}</td>
+          </tr>
+          ${(!row.isCorrect && row.note)?`<tr><td colspan="4" style="border-bottom:1px solid var(--line);"><div class="note">💡 ${row.note}</div></td></tr>`:''}
+        `).join('')}
+      </table>
+      ${r.passed
+        ? `<a class="reward-link on" href="${exam.rewardLink||'#'}" target="_blank" rel="noopener">🎁 المكافأة متاحة — اضغط هنا</a>`
+        : `<div class="reward-link off">غير متاح — حاول مرة أخرى</div>`}
+      ${r.waLink? `<button class="btn wa-btn" style="margin-top:12px; width:100%;" id="sendWa">📲 إرسال النتيجة لولي الأمر عبر واتساب</button>`:''}
+    </div>
+  </div>`;
+}
+
+function statsView(){
+  if(!state.student){
+    return `<div class="wrap"><h1 class="h-title">إحصائياتي</h1>${identifyForm('stats')}</div>`;
+  }
+  const rows = SUBJECTS.map(s=>{
+    const exams = subjectExams(s.id);
+    let sum=0,cnt=0;
+    exams.forEach(e=>{ const b=bestAttempt(state.student.id,e.id); if(b){sum+=b.percent;cnt++;} });
+    const pct = cnt? Math.round(sum/cnt): 0;
+    return {s, pct, cnt};
+  });
+  const overall = rows.length? Math.round(rows.reduce((a,r)=>a+r.pct,0)/rows.length):0;
+  const totalAttempts = state.sdata.answers.filter(a=>a.studentId===state.student.id).length;
+  return `<div class="wrap">
+    <h1 class="h-title">📊 إحصائيات ${state.student.name}</h1>
+    <div class="stat-grid">
+      <div class="card">
+        <div class="section-title">نسبة الأداء لكل مادة</div>
+        ${rows.map(r=>`
+          <div class="bar-row">
+            <div class="bar-label">${r.s.icon} ${r.s.name}</div>
+            <div class="bar-track"><div class="bar-fill" style="width:${r.pct}%; background:${r.s.c};"></div></div>
+            <div class="bar-val mono">${r.pct}%</div>
+          </div>`).join('')}
+        <hr class="divider"/>
+        <div style="font-weight:800; font-family:'Cairo';">المعدل العام: <span class="mono" style="color:var(--brand);">${overall}%</span></div>
+      </div>
+      <div class="card">
+        <div class="section-title">توزيع المجهود بين المواد</div>
+        ${pieChart(rows)}
+        <div class="hint" style="margin-top:10px;">إجمالي عدد المحاولات: ${totalAttempts}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function pieChart(rows){
+  const total = rows.reduce((a,r)=>a+Math.max(r.pct,1),0) || 1;
+  let acc=0;
+  const R=70,CX=90,CY=90;
+  const paths = rows.map(r=>{
+    const val = Math.max(r.pct,1);
+    const frac = val/total;
+    const start = acc*2*Math.PI; acc+=frac; const end=acc*2*Math.PI;
+    const x1=CX+R*Math.sin(start), y1=CY-R*Math.cos(start);
+    const x2=CX+R*Math.sin(end), y2=CY-R*Math.cos(end);
+    const large = (end-start)>Math.PI?1:0;
+    return `<path d="M${CX},${CY} L${x1},${y1} A${R},${R} 0 ${large} 1 ${x2},${y2} Z" fill="${r.s.c}" opacity="0.88"/>`;
+  }).join('');
+  return `<svg viewBox="0 0 180 180" width="180" height="180" style="display:block;margin:0 auto;">${paths}</svg>
+    <div style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:10px;">
+      ${rows.map(r=>`<span class="hint" style="display:flex; align-items:center; gap:4px;"><span style="width:9px;height:9px;background:${r.s.c};border-radius:2px; display:inline-block;"></span>${r.s.name}</span>`).join('')}
+    </div>`;
+}
+
+function compareView(){
+  const rows = SUBJECTS.map(s=>{
+    const videos = subjectVideos(s.id).length;
+    const exams = subjectExams(s.id);
+    const allAttempts = state.sdata.answers.filter(a=> exams.some(e=>e.id===a.examId));
+    const avg = allAttempts.length? Math.round(allAttempts.reduce((a,x)=>a+x.percent,0)/allAttempts.length): null;
+    return {s, videos, examsCount: exams.length, avg};
+  });
+  const ranked = [...rows].filter(r=>r.avg!==null).sort((a,b)=>a.avg-b.avg);
+  return `<div class="wrap">
+    <h1 class="h-title">⚖️ مقارنة المدرسين</h1>
+    <div class="card">
+      <table>
+        <tr><th>المادة</th><th>المدرس</th><th>عدد الفيديوهات</th><th>عدد الامتحانات</th><th>متوسط درجات الطلاب</th><th>الترتيب (الأصعب)</th></tr>
+        ${rows.map(r=>{
+          const rank = ranked.findIndex(x=>x.s.id===r.s.id);
+          return `<tr>
+            <td>${r.s.icon} ${r.s.name}</td><td>${r.s.teacher}</td><td>${r.videos}</td><td>${r.examsCount}</td>
+            <td class="mono">${r.avg!==null? r.avg+'%':'—'}</td>
+            <td>${rank===0? `<span class="rank-1">🏆 الأصعب</span>`: (rank>-1? '#'+(rank+1) : '—')}</td>
+          </tr>`;
+        }).join('')}
+      </table>
+      <div class="hint" style="margin-top:10px;">كلما قلّ متوسط درجات الطلاب في مادة، دلّ ذلك على صعوبتها النسبية (أو الحاجة لمراجعة أسلوب الشرح).</div>
+    </div>
+  </div>`;
+}
+
+function parentView(){
+  if(state.parentResult){
+    const student = state.parentResult;
+    const rows = SUBJECTS.map(s=>{
+      const exams = subjectExams(s.id);
+      let sum=0,cnt=0;
+      exams.forEach(e=>{ const b=bestAttempt(student.id,e.id); if(b){sum+=b.percent;cnt++;} });
+      return {s, pct: cnt? Math.round(sum/cnt):0};
+    });
+    return `<div class="wrap">
+      <button class="back-link" id="parentBack">→ بحث جديد</button>
+      <h1 class="h-title">👨‍👩‍👦 متابعة: ${student.name}</h1>
+      <div class="card">
+        ${rows.map(r=>`
+          <div class="bar-row">
+            <div class="bar-label">${r.s.icon} ${r.s.name}</div>
+            <div class="bar-track"><div class="bar-fill" style="width:${r.pct}%; background:${r.s.c};"></div></div>
+            <div class="bar-val mono">${r.pct}%</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }
+  return `<div class="wrap">
+    <h1 class="h-title">👨‍👩‍👦 تابع ابنك</h1>
+    <div class="card" style="max-width:420px;">
+      <div class="field"><label>اسم الطالب</label><input id="pName" placeholder="اسم الطالب بالكامل"/></div>
+      <div class="field"><label>رقم واتساب ولي الأمر</label><input id="pPhone" placeholder="01xxxxxxxxx"/></div>
+      <button class="btn" id="parentSearch" style="width:100%;">عرض النتيجة</button>
+      <div class="hint" style="margin-top:10px;">سيتم حفظ رقمك لإرسال إشعارات نتائج الامتحانات تلقائياً.</div>
+    </div>
+  </div>`;
+}
+
+function adminView(){
+  if(!state.adminOk){
+    return `<div class="wrap">
+      <h1 class="h-title">🔐 لوحة تحكم الأدمن</h1>
+      <div class="card" style="max-width:360px;">
+        <div class="field"><label>الرمز السري</label><input id="adminPin" type="password" placeholder="••••"/></div>
+        <button class="btn" id="adminLogin" style="width:100%;">دخول</button>
+        <div class="hint">(هذا حماية أولية للنموذج فقط — تحتاج نظام تسجيل دخول حقيقي عند النشر الفعلي)</div>
+      </div>
+    </div>`;
+  }
+  return `<div class="wrap">
+    <h1 class="h-title">🔐 لوحة تحكم الأدمن</h1>
+    <div class="tabs">
+      <button data-atab="video" class="${state.adminSubTab==='video'?'active':''}">إضافة فيديو</button>
+      <button data-atab="exam" class="${state.adminSubTab==='exam'?'active':''}">إضافة امتحان</button>
+      <button data-atab="manage" class="${state.adminSubTab==='manage'?'active':''}">إدارة المحتوى</button>
+      <button data-atab="codes" class="${state.adminSubTab==='codes'?'active':''}">أكواد الاشتراك</button>
+    </div>
+    ${state.adminSubTab==='video'?adminVideoForm():state.adminSubTab==='exam'?adminExamForm():state.adminSubTab==='codes'?adminCodesForm():adminManage()}
+  </div>`;
+}
+
+function subjectSelectOptions(){
+  return SUBJECTS.map(s=>`<option value="${s.id}">${s.icon} ${s.name} — ${s.teacher}</option>`).join('');
+}
+function adminVideoForm(){
+  return `<div class="card" style="max-width:480px;">
+    <div class="field"><label>اسم الدرس</label><input id="vTitle" placeholder="مثال: الدرس الأول - التفاضل"/></div>
+    <div class="field"><label>المادة</label><select id="vSubject">${subjectSelectOptions()}</select></div>
+    <div class="field"><label>رابط جوجل درايف</label><input id="vLink" placeholder="https://drive.google.com/..."/></div>
+    <button class="btn" id="addVideo" style="width:100%;">حفظ الفيديو</button>
+  </div>`;
+}
+function adminExamForm(){
+  return `<div class="card" style="max-width:640px;">
+    <div class="field"><label>اسم الامتحان</label><input id="eTitle" placeholder="مثال: امتحان الدرس الأول"/></div>
+    <div class="row2">
+      <div class="field"><label>المادة</label><select id="eSubject">${subjectSelectOptions()}</select></div>
+      <div class="field"><label>رقم الدرس المرتبط</label><input id="eLesson" type="number" value="1"/></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>نسبة النجاح (%)</label><input id="ePass" type="number" value="70"/></div>
+      <div class="field"><label>رابط المكافأة (جوجل درايف)</label><input id="eReward" placeholder="https://drive.google.com/..."/></div>
+    </div>
+    <hr class="divider"/>
+    <div class="section-title">الأسئلة</div>
+    <div id="qContainer">${state.draftQuestions.map((q,i)=>questionEditor(q,i)).join('')}</div>
+    <button class="btn ghost sm" id="addQuestion">+ إضافة سؤال</button>
+    <hr class="divider"/>
+    <button class="btn" id="saveExam" style="width:100%;">حفظ الامتحان</button>
+  </div>`;
+}
+function questionEditor(q,i){
+  return `<div class="q-block" data-qidx="${i}">
+    <div class="q-num">السؤال ${i+1} ${state.draftQuestions.length>1?`<button class="btn danger sm" data-rmq="${i}" style="float:left;">حذف</button>`:''}</div>
+    <div class="field"><label>نص السؤال</label><input data-qf="text" data-qidx="${i}" value="${q.text.replace(/"/g,'&quot;')}"/></div>
+    <div class="row2">
+      <div class="field"><label>اختيار أ</label><input data-qf="a" data-qidx="${i}" value="${q.a.replace(/"/g,'&quot;')}"/></div>
+      <div class="field"><label>اختيار ب</label><input data-qf="b" data-qidx="${i}" value="${q.b.replace(/"/g,'&quot;')}"/></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>اختيار ج</label><input data-qf="c" data-qidx="${i}" value="${q.c.replace(/"/g,'&quot;')}"/></div>
+      <div class="field"><label>اختيار د</label><input data-qf="d" data-qidx="${i}" value="${q.d.replace(/"/g,'&quot;')}"/></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>الإجابة الصحيحة</label>
+        <select data-qf="correct" data-qidx="${i}">
+          ${['a','b','c','d'].map(k=>`<option value="${k}" ${q.correct===k?'selected':''}>${k}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label>ملحوظة تصحيح (اختياري)</label><input data-qf="note" data-qidx="${i}" value="${q.note.replace(/"/g,'&quot;')}"/></div>
+    </div>
+  </div>`;
+}
+function adminCodesForm(){
+  const codes = Array.from({length:N_CODES}, (_,i)=> state.accessCodes[i] || '');
+  return `<div class="card" style="max-width:520px;">
+    <div class="section-title">أكواد الاشتراك (${N_CODES} كود)</div>
+    <div class="hint" style="margin-bottom:14px;">أي طالب لازم يدخل واحد من الأكواد دي عشان يدخل المنصة. ممكن أكتر من طالب يستخدموا نفس الكود.</div>
+    ${codes.map((c,i)=>`
+      <div class="field"><label>الكود رقم ${i+1}</label><input data-codeidx="${i}" value="${c.replace(/"/g,'&quot;')}" placeholder="مثال: SNT-${i+1}"/></div>
+    `).join('')}
+    <button class="btn" id="saveCodes" style="width:100%;">حفظ الأكواد</button>
+  </div>`;
+}
+function adminManage(){
+  return `<div class="card">
+    <div class="section-title">الفيديوهات (${state.content.videos.length})</div>
+    ${state.content.videos.map(v=>{
+      const s = SUBJECTS.find(x=>x.id===v.subjectId);
+      return `<div class="list-row"><div><div class="title">${v.title}</div><div class="sub">${s?s.name:''}</div></div><button class="btn danger sm" data-delvideo="${v.id}">حذف</button></div>`;
+    }).join('') || `<div class="hint">لا يوجد فيديوهات.</div>`}
+    <hr class="divider"/>
+    <div class="section-title">الامتحانات (${state.content.exams.length})</div>
+    ${state.content.exams.map(e=>{
+      const s = SUBJECTS.find(x=>x.id===e.subjectId);
+      return `<div class="list-row"><div><div class="title">${e.title}</div><div class="sub">${s?s.name:''} · ${e.questions.length} سؤال · نجاح ${e.passScore}%</div></div><button class="btn danger sm" data-delexam="${e.id}">حذف</button></div>`;
+    }).join('') || `<div class="hint">لا يوجد امتحانات.</div>`}
+  </div>`;
+}
+
+function identifyForm(purpose){
+  return `<div class="card" style="max-width:400px;">
+    <div class="field"><label>اسمك بالكامل</label><input id="idName" placeholder="اكتب اسمك"/></div>
+    <div class="field"><label>رقم واتساب ولي الأمر (اختياري)</label><input id="idPhone" placeholder="01xxxxxxxxx"/></div>
+    <button class="btn" id="idSubmit" style="width:100%;">متابعة</button>
+  </div>`;
+}
+
+function modalHtml(){ return ''; }
+
+/* ---------- EVENTS ---------- */
+function bindEvents(){
+  document.getElementById('darkToggle').onclick = ()=>{ state.dark=!state.dark; document.body.classList.toggle('dark',state.dark); savePrefs(); render(); };
+  document.querySelectorAll('[data-nav]').forEach(el=>el.onclick = ()=>{
+    const v = el.dataset.nav;
+    if(v==='subject'){ go('subject',{subjectId: el.dataset.backSubject, tab:'exams'}); return; }
+    if(v==='admin'){ go('admin'); return; }
+    if(v==='stats'||v==='parent'){ go(v,{parentResult:null}); return; }
+    go(v);
+  });
+  document.querySelectorAll('[data-open-subject]').forEach(el=>el.onclick=()=>go('subject',{subjectId:el.dataset.openSubject, tab:'videos'}));
+  document.querySelectorAll('[data-tab]').forEach(el=>el.onclick=()=>{ state.tab=el.dataset.tab; render(); });
+
+  document.querySelectorAll('[data-start-exam]').forEach(el=>el.onclick=()=>{
+    const examId = el.dataset.startExam;
+    if(!state.student){
+      pendingExamId = examId;
+      openIdentifyModal(()=>{ startExam(examId); });
+    } else { startExam(examId); }
+  });
+
+  document.querySelectorAll('[data-pick]').forEach(el=>el.onclick=()=>{
+    const [qId,choice] = el.dataset.pick.split('|');
+    state.examAnswers[qId] = choice;
+    render();
+  });
+  const submitBtn = document.getElementById('submitExam');
+  if(submitBtn) submitBtn.onclick = submitExam;
+
+  const waBtn = document.getElementById('sendWa');
+  if(waBtn) waBtn.onclick = ()=>{ window.open(state.lastResult.waLink,'_blank'); };
+
+  // stats identify
+  const idSubmit = document.getElementById('idSubmit');
+  if(idSubmit) idSubmit.onclick = async ()=>{
+    const name = document.getElementById('idName').value.trim();
+    const phone = document.getElementById('idPhone').value.trim();
+    if(!name){ alert('من فضلك اكتب اسمك'); return; }
+    await identifyStudent(name, phone);
+    render();
+  };
+
+  // parent
+  const pSearch = document.getElementById('parentSearch');
+  if(pSearch) pSearch.onclick = async ()=>{
+    const name = document.getElementById('pName').value.trim();
+    const phone = document.getElementById('pPhone').value.trim();
+    if(!name||!phone){ alert('من فضلك أدخل الاسم ورقم الواتساب'); return; }
+    let found = state.sdata.students.find(s=>s.name===name && s.phone===phone);
+    if(!found){
+      found = {id:uid(), name, phone};
+      state.sdata.students.push(found);
+      await saveSdata();
+    }
+    state.parentResult = found;
+    render();
+  };
+  const pBack = document.getElementById('parentBack');
+  if(pBack) pBack.onclick = ()=>{ state.parentResult=null; render(); };
+
+  // admin
+  const adminLogin = document.getElementById('adminLogin');
+  if(adminLogin) adminLogin.onclick = ()=>{
+    const v = document.getElementById('adminPin').value;
+    if(v===ADMIN_PIN){ state.adminOk=true; render(); } else { alert('رمز غير صحيح'); }
+  };
+  document.querySelectorAll('[data-atab]').forEach(el=>el.onclick=()=>{ state.adminSubTab=el.dataset.atab; render(); });
+
+  const addVideo = document.getElementById('addVideo');
+  if(addVideo) addVideo.onclick = async ()=>{
+    const title = document.getElementById('vTitle').value.trim();
+    const subjectId = document.getElementById('vSubject').value;
+    const link = document.getElementById('vLink').value.trim();
+    if(!title||!link){ alert('من فضلك أكمل كل الحقول'); return; }
+    state.content.videos.push({id:uid(), title, subjectId, driveLink:link, createdAt:Date.now()});
+    await saveContent();
+    document.getElementById('vTitle').value=''; document.getElementById('vLink').value='';
+    alert('تم حفظ الفيديو ✅');
+  };
+
+  const addQuestion = document.getElementById('addQuestion');
+  if(addQuestion) addQuestion.onclick = ()=>{ state.draftQuestions.push(newQ()); render(); };
+  document.querySelectorAll('[data-rmq]').forEach(el=>el.onclick=()=>{
+    state.draftQuestions.splice(parseInt(el.dataset.rmq),1); render();
+  });
+  document.querySelectorAll('[data-qf]').forEach(el=>{
+    const fn = el.tagName==='SELECT'?'onchange':'oninput';
+    el[fn] = ()=>{ state.draftQuestions[parseInt(el.dataset.qidx)][el.dataset.qf] = el.value; };
+  });
+
+  const saveExam = document.getElementById('saveExam');
+  if(saveExam) saveExam.onclick = async ()=>{
+    const title = document.getElementById('eTitle').value.trim();
+    const subjectId = document.getElementById('eSubject').value;
+    const lessonNumber = parseInt(document.getElementById('eLesson').value)||1;
+    const passScore = parseInt(document.getElementById('ePass').value)||70;
+    const rewardLink = document.getElementById('eReward').value.trim();
+    const qs = state.draftQuestions.filter(q=>q.text.trim());
+    if(!title || !qs.length){ alert('من فضلك أدخل اسم الامتحان وسؤال واحد على الأقل'); return; }
+    const exam = {id:uid(), title, subjectId, lessonNumber, passScore, rewardLink,
+      questions: qs.map(q=>({id:uid(), ...q})), createdAt:Date.now()};
+    state.content.exams.push(exam);
+    await saveContent();
+    state.draftQuestions = [newQ()];
+    alert('تم حفظ الامتحان ✅');
+    render();
+  };
+
+  document.querySelectorAll('[data-codeidx]').forEach(el=>{
+    el.oninput = ()=>{ state.accessCodes[parseInt(el.dataset.codeidx)] = el.value; };
+  });
+  const saveCodesBtn = document.getElementById('saveCodes');
+  if(saveCodesBtn) saveCodesBtn.onclick = async ()=>{ await saveCodes(); alert('تم حفظ الأكواد ✅'); };
+
+  document.querySelectorAll('[data-delvideo]').forEach(el=>el.onclick=async ()=>{
+    state.content.videos = state.content.videos.filter(v=>v.id!==el.dataset.delvideo);
+    await saveContent(); render();
+  });
+  document.querySelectorAll('[data-delexam]').forEach(el=>el.onclick=async ()=>{
+    state.content.exams = state.content.exams.filter(e=>e.id!==el.dataset.delexam);
+    await saveContent(); render();
+  });
+}
+
+let pendingExamId = null;
+function openIdentifyModal(onDone){
+  const bg = document.createElement('div');
+  bg.className='modal-bg';
+  bg.innerHTML = `<div class="modal">
+    <h2 style="margin-top:0;">من فضلك عرّف نفسك أولاً</h2>
+    <div class="field"><label>اسمك بالكامل</label><input id="mName" placeholder="اكتب اسمك"/></div>
+    <div class="field"><label>رقم واتساب ولي الأمر (اختياري)</label><input id="mPhone" placeholder="01xxxxxxxxx"/></div>
+    <button class="btn" id="mSubmit" style="width:100%;">بدء الامتحان</button>
+  </div>`;
+  document.body.appendChild(bg);
+  bg.querySelector('#mSubmit').onclick = async ()=>{
+    const name = bg.querySelector('#mName').value.trim();
+    const phone = bg.querySelector('#mPhone').value.trim();
+    if(!name){ alert('من فضلك اكتب اسمك'); return; }
+    await identifyStudent(name, phone);
+    document.body.removeChild(bg);
+    onDone();
+  };
+}
+
+async function identifyStudent(name, phone){
+  let found = state.sdata.students.find(s=>s.name===name && (!phone || s.phone===phone));
+  if(!found){
+    found = {id:uid(), name, phone};
+    state.sdata.students.push(found);
+    await saveSdata();
+  }
+  state.student = found;
+  await savePrefs();
+}
+
+function startExam(examId){
+  state.examAnswers = {};
+  go('exam',{examId});
+}
+
+async function submitExam(){
+  const exam = state.content.exams.find(e=>e.id===state.examId);
+  const rows = exam.questions.map(q=>{
+    const selected = state.examAnswers[q.id];
+    const isCorrect = selected===q.correct;
+    return {qId:q.id, selected, correct:q.correct, isCorrect, note:q.note};
+  });
+  const score = rows.filter(r=>r.isCorrect).length;
+  const total = rows.length;
+  const percent = Math.round((score/total)*100);
+  const passed = percent >= exam.passScore;
+  const attempt = {id:uid(), studentId: state.student.id, examId: exam.id, subjectId: exam.subjectId,
+    score, total, percent, passed, date: Date.now(),
+    wrongQuestions: rows.map((r,i)=>!r.isCorrect? (i+1): null).filter(Boolean)};
+  state.sdata.answers.push(attempt);
+  await saveSdata();
+
+  const s = SUBJECTS.find(x=>x.id===exam.subjectId);
+  let waLink = null;
+  if(state.student.phone){
+    const msg = `منصتك: نتيجة ${state.student.name}\nالمادة: ${s.name} (${s.teacher})\nالامتحان: ${exam.title}\nالدرجة: ${score} من ${total}\nالحالة: ${passed?'ناجح ✅':'راسب ❌'}${attempt.wrongQuestions.length? '\nالأخطاء في الأسئلة: '+attempt.wrongQuestions.join('، '):''}`;
+    const digits = state.student.phone.replace(/\D/g,'');
+    waLink = `https://wa.me/${digits}?text=${encodeURIComponent(msg)}`;
+  }
+  state.lastResult = {examId: exam.id, score, total, passed, rows, waLink};
+  go('result');
+}
+
+boot();
+
+/* ========== DOWNLOAD / INSTALL APP ========== */
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  showDownloadButton();
+});
+
+function showDownloadButton() {
+  // Only show if not already installed
+  if(window.matchMedia('(display-mode: standalone)').matches) return;
+
+  const btn = document.getElementById('downloadBtn');
+  if(btn) btn.style.display = 'flex';
+}
+
+function hideDownloadButton() {
+  const btn = document.getElementById('downloadBtn');
+  if(btn) btn.style.display = 'none';
+}
+
+async function installApp() {
+  if(deferredPrompt) {
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if(outcome === 'accepted') {
+      console.log('User installed app');
+      hideDownloadButton();
+    }
+    deferredPrompt = null;
+  } else {
+    // Show manual install instructions
+    showInstallModal();
+  }
+}
+
+function showInstallModal() {
+  const modal = document.getElementById('installModal');
+  if(modal) modal.classList.add('show');
+}
+
+function closeInstallModal() {
+  const modal = document.getElementById('installModal');
+  if(modal) modal.classList.remove('show');
+}
+
+// Check if already installed
+if(window.matchMedia('(display-mode: standalone)').matches) {
+  hideDownloadButton();
+}
+
+// Also hide on iOS (they use "Add to Home Screen" manually)
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+if(isIOS) {
+  // Show iOS-specific instructions
+  const btn = document.getElementById('downloadBtn');
+  if(btn) {
+    btn.onclick = showInstallModal;
+    btn.querySelector('small').textContent = 'اضغط للتعليمات';
+  }
+}
+
+</script>
+</body>
+</html>
